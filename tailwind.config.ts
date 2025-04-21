@@ -52,6 +52,15 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+                expense: {
+                    food: '#4CAF50',
+                    shopping: '#2196F3',
+                    bills: '#FF9800',
+                    entertainment: '#9C27B0',
+                    transport: '#F44336',
+                    health: '#E91E63',
+                    others: '#607D8B'
+                },
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
