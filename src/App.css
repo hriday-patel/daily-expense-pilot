@@ -74,3 +74,14 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #a0a0a0;
 }
+
+/* Glass morphism effect for cards and UI elements */
+.glass-morphism {
+  @apply backdrop-blur-md bg-white/20 dark:bg-black/40 border border-white/10 dark:border-white/5;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation for smoother transitions */
+.auth-transition {
+  transition: all 0.3s ease;
+}

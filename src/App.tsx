@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AuthPage from "./pages/AuthPage";
+import AuthCallback from "./pages/AuthCallback";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import RequireAuth from "@/components/RequireAuth";
 import "./App.css";
@@ -32,10 +33,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route
-              path="/auth"
-              element={<AuthRedirector />}
-            />
+            <Route path="/auth" element={<AuthRedirector />} />
+            {/* Add auth callback route for OAuth */}
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route
               path="/"
               element={
