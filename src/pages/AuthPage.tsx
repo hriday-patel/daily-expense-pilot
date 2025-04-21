@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
+import useSession from "@/hooks/useSession";
 
 const validateEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -17,6 +19,25 @@ export default function AuthPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { session } = useSession();
+
+  // Show loading state if coming back from Google OAuth and session is not checked yet
+  const [waitingGoogleAuth, setWaitingGoogleAuth] = useState(false);
+
+  useEffect(() => {
+    // If session is set, redirect to main
+    if (session) {
+      navigate("/", { replace: true });
+    }
+  }, [session, navigate]);
+
+  useEffect(() => {
+    // If URL contains "access_token", probably coming from Google OAuth callback
+    if (window.location.hash.includes("access_token")) {
+      setWaitingGoogleAuth(true);
+      // Let useSession hook manage the redirection once session is available
+    }
+  }, []);
 
   const validate = () => {
     if (!validateEmail(email)) {
@@ -42,7 +63,7 @@ export default function AuthPage() {
         return;
       }
       toast({ title: "Logged in successfully!" });
-      navigate("/", { replace: true });
+      // navigate("/", { replace: true }); // Navigation will happen after session updates
     } else {
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) {
@@ -58,24 +79,41 @@ export default function AuthPage() {
 
   const handleGoogle = async () => {
     setLoading(true);
+    setWaitingGoogleAuth(false);
     // Using redirectTo to ensure proper redirection after OAuth
     const { error } = await supabase.auth.signInWithOAuth({ 
       provider: "google",
       options: {
-        redirectTo: window.location.origin
+        redirectTo: window.location.origin,
       }
     });
-    
     if (error) {
       toast({ title: error.message, variant: "destructive" });
       setLoading(false);
+      setWaitingGoogleAuth(false);
     }
     // No need to navigate here as OAuth will handle the redirect
   };
 
+  // Show loading splash if returning from Google (waiting for session), or loading state
+  if (waitingGoogleAuth || (loading && session === null)) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background">
+        <div className="absolute top-4 right-4">
+          <ThemeToggle />
+        </div>
+        <Loader2 className="animate-spin h-10 w-10 text-primary mb-4" />
+        <h2 className="text-lg font-semibold">Finishing login with Google...</h2>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="w-full max-w-md rounded-lg shadow-lg p-8 bg-card">
+    <div className="min-h-screen flex items-center justify-center bg-background relative">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      <div className="w-full max-w-md rounded-lg shadow-lg p-8 bg-card glass-morphism">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Welcome to Daily Expense Pilot</h1>
         </div>
