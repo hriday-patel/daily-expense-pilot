@@ -1,4 +1,4 @@
-# Welcome to your Github Repo
+# Welcome to my Github Repo
 
 ## Project info
 
