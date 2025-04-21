@@ -1,4 +1,3 @@
-
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Expense, ExpenseSummary, ExpenseCategory, PaymentMode } from "@/types";
@@ -14,9 +13,9 @@ export function generateId(): string {
 
 // Format currency
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
   }).format(amount);
 }
 
