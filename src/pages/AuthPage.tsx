@@ -42,7 +42,7 @@ export default function AuthPage() {
         return;
       }
       toast({ title: "Logged in successfully!" });
-      navigate("/");
+      navigate("/", { replace: true });
     } else {
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) {
@@ -58,9 +58,19 @@ export default function AuthPage() {
 
   const handleGoogle = async () => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
-    if (error) toast({ title: error.message, variant: "destructive" });
-    setLoading(false);
+    // Using redirectTo to ensure proper redirection after OAuth
+    const { error } = await supabase.auth.signInWithOAuth({ 
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin
+      }
+    });
+    
+    if (error) {
+      toast({ title: error.message, variant: "destructive" });
+      setLoading(false);
+    }
+    // No need to navigate here as OAuth will handle the redirect
   };
 
   return (

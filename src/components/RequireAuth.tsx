@@ -14,7 +14,7 @@ export default function RequireAuth({ children }: { children: React.ReactNode })
     }
   }, [session, navigate]);
 
-  // If session not checked, don't render children
+  // If session not checked yet or null, don't render children
   if (session === null) return null;
 
   return <>{children}</>;
