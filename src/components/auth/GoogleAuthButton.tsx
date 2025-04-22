@@ -22,11 +22,13 @@ export default function GoogleAuthButton({ isSignUp = false, disabled = false }:
         options: {
           redirectTo,
           queryParams: {
-            // Adding access_type=offline to get refresh token
-            access_type: 'offline',
-            // Force account selection every time
+            // Force a fresh login every time to ensure account selection
             prompt: 'select_account',
-            // Prevent caching issues
+            // Request offline access to get refresh token
+            access_type: 'offline',
+            // Add response type to ensure we get both ID and access tokens
+            response_type: 'code',
+            // Prevent caching issues with a unique nonce
             nonce: Math.random().toString(36).substring(2, 15)
           }
         }
@@ -46,7 +48,6 @@ export default function GoogleAuthButton({ isSignUp = false, disabled = false }:
           variant: "destructive" 
         });
       }
-      // If successful, user will be redirected automatically
     } catch (e) {
       console.error("Google auth error:", e);
       toast({ 
