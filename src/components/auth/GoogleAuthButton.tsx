@@ -22,10 +22,12 @@ export default function GoogleAuthButton({ isSignUp = false, disabled = false }:
         options: {
           redirectTo,
           queryParams: {
-            // Adding a random parameter to avoid caching issues
-            nonce: Math.random().toString(36).substring(2, 15),
-            // Add prompt parameter to force account selection
-            prompt: "select_account"
+            // Adding access_type=offline to get refresh token
+            access_type: 'offline',
+            // Force account selection every time
+            prompt: 'select_account',
+            // Prevent caching issues
+            nonce: Math.random().toString(36).substring(2, 15)
           }
         }
       });
@@ -38,14 +40,13 @@ export default function GoogleAuthButton({ isSignUp = false, disabled = false }:
           variant: "destructive" 
         });
       } else if (!data.url) {
-        // This should not happen normally
         toast({ 
           title: "Authentication failed", 
           description: "No redirect URL returned from authentication provider.", 
           variant: "destructive" 
         });
       }
-      // If successful, the user will be redirected automatically
+      // If successful, user will be redirected automatically
     } catch (e) {
       console.error("Google auth error:", e);
       toast({ 
