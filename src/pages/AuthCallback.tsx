@@ -1,69 +1,85 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthLoading from "@/components/auth/AuthLoading";
-import useSession from "@/hooks/useSession";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
-  const { session } = useSession();
+  const [error, setError] = useState<string | null>(null);
   
-  // Handle OAuth callback and session check
+  // Handle OAuth callback
   useEffect(() => {
-    // Process the URL hash if it exists (needed for some OAuth providers)
     const handleAuthCallback = async () => {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const accessToken = hashParams.get('access_token');
-      const refreshToken = hashParams.get('refresh_token');
-      
-      // If there are tokens in the URL, we need to manually set the session
-      if (accessToken && refreshToken) {
-        try {
-          // Exchange the tokens for a session
-          const { error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken
-          });
+      try {
+        // Check for error in URL parameters - common in OAuth flows
+        const queryParams = new URLSearchParams(window.location.search);
+        const urlError = queryParams.get('error');
+        const errorDescription = queryParams.get('error_description');
+        
+        if (urlError) {
+          throw new Error(errorDescription || `Authentication error: ${urlError}`);
+        }
+        
+        // Handle hash fragment that might contain tokens
+        if (window.location.hash) {
+          const hashParams = new URLSearchParams(window.location.hash.substring(1));
+          const accessToken = hashParams.get('access_token');
+          const refreshToken = hashParams.get('refresh_token');
           
-          if (error) throw error;
-        } catch (error) {
-          console.error("Error setting session:", error);
-          toast({ 
-            title: "Authentication failed", 
-            description: "Could not complete the authentication. Please try again.", 
-            variant: "destructive" 
-          });
-          navigate("/auth", { replace: true });
+          // If we have tokens in the URL, manually set the session
+          if (accessToken && refreshToken) {
+            const { error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            });
+            
+            if (error) throw error;
+          }
+        }
+
+        // Get session - this should work after OAuth redirect
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) throw error;
+        
+        if (data.session) {
+          toast({ title: "Successfully signed in!" });
+          navigate("/", { replace: true });
           return;
         }
+        
+        // If we reach here with no session, something went wrong
+        throw new Error("No session found after authentication. Please try again.");
+      } catch (err) {
+        console.error("Auth callback error:", err);
+        const errorMessage = err instanceof Error ? err.message : "Authentication failed";
+        setError(errorMessage);
+        toast({ 
+          title: "Authentication failed", 
+          description: errorMessage, 
+          variant: "destructive" 
+        });
+        
+        // Short delay before redirecting to auth page
+        setTimeout(() => {
+          navigate("/auth", { replace: true });
+        }, 2000);
       }
     };
     
-    // Process URL hash if needed
+    // Process the authentication callback
     handleAuthCallback();
-    
-    // If session is available, authentication was successful
-    if (session) {
-      toast({ title: "You're now signed in!" });
-      navigate("/", { replace: true });
-    } 
-    
-    // Set a timeout to redirect to auth page if session doesn't load
-    const timeoutId = setTimeout(() => {
-      if (!session) {
-        toast({ 
-          title: "Authentication failed", 
-          description: "Please try logging in again", 
-          variant: "destructive" 
-        });
-        navigate("/auth", { replace: true });
-      }
-    }, 10000); // 10 seconds timeout
-    
-    return () => clearTimeout(timeoutId);
-  }, [session, navigate]);
+  }, [navigate]);
   
-  return <AuthLoading message="Completing authentication..." />;
+  return (
+    <AuthLoading 
+      message={
+        error 
+          ? `Authentication failed: ${error}. Redirecting...` 
+          : "Completing authentication..."
+      } 
+    />
+  );
 }

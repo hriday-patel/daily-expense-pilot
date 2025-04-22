@@ -16,21 +16,36 @@ export default function GoogleAuthButton({ isSignUp = false, disabled = false }:
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithOAuth({ 
+      const redirectTo = `${window.location.origin}/auth/callback`;
+      const { data, error } = await supabase.auth.signInWithOAuth({ 
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo,
           queryParams: {
-            // Using query params to ensure we have enough entropy in our URL
-            // This helps avoid browser caching issues
-            timestamp: new Date().getTime().toString()
+            // Adding a random parameter to avoid caching issues
+            nonce: Math.random().toString(36).substring(2, 15),
+            // Add prompt parameter to force account selection
+            prompt: "select_account"
           }
         }
       });
       
       if (error) {
-        toast({ title: error.message, variant: "destructive" });
+        console.error("Google auth error:", error);
+        toast({ 
+          title: "Authentication failed", 
+          description: error.message, 
+          variant: "destructive" 
+        });
+      } else if (!data.url) {
+        // This should not happen normally
+        toast({ 
+          title: "Authentication failed", 
+          description: "No redirect URL returned from authentication provider.", 
+          variant: "destructive" 
+        });
       }
+      // If successful, the user will be redirected automatically
     } catch (e) {
       console.error("Google auth error:", e);
       toast({ 
@@ -70,7 +85,7 @@ export default function GoogleAuthButton({ isSignUp = false, disabled = false }:
         />
         <path fill="none" d="M1 1h22v22H1z" />
       </svg>
-      {isSignUp ? "Sign up with Google" : "Sign in with Google"}
+      {isLoading ? "Connecting..." : isSignUp ? "Sign up with Google" : "Sign in with Google"}
     </Button>
   );
 }
