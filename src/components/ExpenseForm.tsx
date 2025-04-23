@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Expense, ExpenseCategory, PaymentMode } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -38,6 +37,12 @@ const ExpenseForm = ({ onSubmit, expenseToEdit, onCancel }: ExpenseFormProps) =>
   const [payeeName, setPayeeName] = useState<string>(expenseToEdit?.payeeName || '');
   const [notes, setNotes] = useState<string>(expenseToEdit?.notes || '');
   const [errors, setErrors] = useState<{[key: string]: string}>({});
+
+  const isFutureDate = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date > today;
+  };
 
   useEffect(() => {
     if (expenseToEdit) {
@@ -84,7 +89,6 @@ const ExpenseForm = ({ onSubmit, expenseToEdit, onCancel }: ExpenseFormProps) =>
     
     onSubmit(expenseData);
     
-    // Reset form if not editing
     if (!expenseToEdit) {
       setAmount('');
       setCategory('food');
@@ -149,6 +153,7 @@ const ExpenseForm = ({ onSubmit, expenseToEdit, onCancel }: ExpenseFormProps) =>
                   selected={date}
                   onSelect={(newDate) => newDate && setDate(newDate)}
                   initialFocus
+                  disabled={isFutureDate}
                   className={cn("p-3 pointer-events-auto")}
                 />
               </PopoverContent>
