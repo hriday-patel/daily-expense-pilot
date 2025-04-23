@@ -1,3 +1,4 @@
+
 /* Set container properties globally */
 #root {
   min-height: 100vh;
@@ -84,4 +85,21 @@
 /* Animation for smoother transitions */
 .auth-transition {
   transition: all 0.3s ease;
+}
+
+/* Added keyframes for enter animation */
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Applied animation to class */
+.animate-enter {
+  animation: enter 2s ease-in-out forwards;
 }

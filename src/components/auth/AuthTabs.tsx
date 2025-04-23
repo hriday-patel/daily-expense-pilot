@@ -29,13 +29,13 @@ export default function AuthTabs({
       </TabsList>
       <TabsContent 
         value="login" 
-        className="transition-all duration-2000 ease-in-out"
+        className="animate-enter transition-all duration-2000 ease-in-out"
       >
         <LoginForm onSuccess={onAuthSuccess} />
       </TabsContent>
       <TabsContent 
         value="signup" 
-        className="transition-all duration-2000 ease-in-out"
+        className="animate-enter transition-all duration-2000 ease-in-out"
       >
         <SignUpForm onSuccess={onSignUpSuccess} />
       </TabsContent>
