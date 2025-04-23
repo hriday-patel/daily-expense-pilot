@@ -60,7 +60,7 @@ export default function SignUpForm({
       <form onSubmit={handleSignUp} className="space-y-4">
         <Input type="email" placeholder="Email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required disabled={loading} />
         <Input type="password" placeholder="Password (min 8 chars)" minLength={8} autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)} required disabled={loading} />
-        <Button type="submit" disabled={loading} className="w-full font-normal rounded bg-blue-700 hover:bg-blue-600">
+        <Button type="submit" disabled={loading} className="w-full rounded bg-blue-700 hover:bg-blue-600 font-medium">
           {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           Sign Up
         </Button>
