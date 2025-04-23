@@ -18,15 +18,25 @@ export default function AuthTabs({
   const [tab, setTab] = useState<"login" | "signup">("login");
 
   return (
-    <Tabs value={tab} onValueChange={v => setTab(v as any)} className="mb-6">
+    <Tabs 
+      value={tab} 
+      onValueChange={v => setTab(v as any)} 
+      className="mb-6 transition-all duration-700 ease-in-out"
+    >
       <TabsList className="mb-3 w-full">
         <TabsTrigger value="login" className="w-1/2" disabled={disabled}>Login</TabsTrigger>
         <TabsTrigger value="signup" className="w-1/2" disabled={disabled}>Sign Up</TabsTrigger>
       </TabsList>
-      <TabsContent value="login">
+      <TabsContent 
+        value="login" 
+        className="transition-all duration-700 ease-in-out"
+      >
         <LoginForm onSuccess={onAuthSuccess} />
       </TabsContent>
-      <TabsContent value="signup">
+      <TabsContent 
+        value="signup" 
+        className="transition-all duration-700 ease-in-out"
+      >
         <SignUpForm onSuccess={onSignUpSuccess} />
       </TabsContent>
     </Tabs>
