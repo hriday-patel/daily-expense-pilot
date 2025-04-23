@@ -40,13 +40,17 @@ export default function AuthTabs({
           value="login" 
           className="absolute w-full transition-all duration-700 ease-in-out animate-fade-in"
         >
-          <LoginForm onSuccess={onAuthSuccess} />
+          <div className="space-y-4">
+            <LoginForm onSuccess={onAuthSuccess} />
+          </div>
         </TabsContent>
         <TabsContent 
           value="signup" 
           className="absolute w-full transition-all duration-700 ease-in-out animate-fade-in"
         >
-          <SignUpForm onSuccess={onSignUpSuccess} />
+          <div className="space-y-4">
+            <SignUpForm onSuccess={onSignUpSuccess} />
+          </div>
         </TabsContent>
       </div>
     </Tabs>
