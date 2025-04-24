@@ -5,16 +5,20 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import GoogleAuthButton from "./GoogleAuthButton";
+
 type LoginFormProps = {
   onSuccess: () => void;
 };
+
 export default function LoginForm({
   onSuccess
 }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   const validate = () => {
     if (!validateEmail(email)) {
       toast({
@@ -32,31 +36,35 @@ export default function LoginForm({
     }
     return true;
   };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+
     setLoading(true);
-    const {
-      error
-    } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-    if (error) {
+    
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Logged in successfully!"
+      });
+      onSuccess();
+    } catch (error: any) {
       toast({
         title: error.message,
         variant: "destructive"
       });
+    } finally {
       setLoading(false);
-      return;
     }
-    toast({
-      title: "Logged in successfully!"
-    });
-    onSuccess();
-    // Leave navigation to the parent component or hooks
-    setLoading(false);
   };
+
   return <div className="space-y-4">
       <form onSubmit={handleLogin} className="space-y-4">
         <Input type="email" placeholder="Email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required disabled={loading} />
